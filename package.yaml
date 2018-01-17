@@ -35,6 +35,8 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - snape
+    - unagi-chan
+    - distributed-process
 
 tests:
   snape-test:
