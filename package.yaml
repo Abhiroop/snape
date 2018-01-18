@@ -37,6 +37,7 @@ executables:
     - snape
     - unagi-chan
     - distributed-process
+    - mtl
 
 tests:
   snape-test:
