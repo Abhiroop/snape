@@ -34,10 +34,11 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - snape
-    - unagi-chan
+    - binary
     - distributed-process
     - mtl
+    - snape
+    - unagi-chan
 
 tests:
   snape-test:
