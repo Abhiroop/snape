@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE DeriveFunctor #-}
@@ -5,6 +6,7 @@
 module Worker where
 
 import Control.Distributed.Process (ProcessId)
+import Control.Distributed.Process.Serializable
 import Control.Concurrent.Chan.Unagi.Bounded
 import Control.Monad.RWS.Strict
 
@@ -12,14 +14,28 @@ import Data.Binary (Binary)
 import GHC.Generics (Generic)
 import Data.Typeable (Typeable)
 
-data QueueState = Empty | Processing
-  deriving (Show, Generic, Typeable)
+-- Limiting the kind of tasks possible right now but will extend this in future to include all kinds of Haskell tasks
+-- TODO: Look at LINQ operators for this function
+data Task = Map
+          | Filter
+          | Reduce
+          | GroupBy
+          deriving (Show, Generic, Typeable)
 
-data MessageTypes = MyCapacity { senderOf    :: ProcessId
+data QueueState = Empty
+                | Processing
+                deriving (Show, Generic, Typeable)
+
+-- TODO: This should be moved to a separate file Messages.hs
+data Messages = WorkerCapacity { senderOf    :: ProcessId
                                , recipientOf :: ProcessId
                                , msg         :: QueueState
                                , workLoad    :: Int
-                               } deriving (Show, Generic, Typeable)
+                               }
+                | WorkerTask { senderOf :: ProcessId
+                             , recipientOf :: ProcessId
+                             , work :: Task}
+                deriving (Show, Generic, Typeable)
 -- add more messages in futures
 -- 1. work stealing from worket to peers
 
@@ -28,16 +44,16 @@ data WorkerConfig = WorkerConfig { master      :: ProcessId
                                  , peers       :: [ProcessId] -- this will be useful for work stealing later
                                  }
 
-data WorkerState = forall a . WorkerState { taskQueue   :: IO (InChan a, OutChan a)
+data WorkerState = forall a . WorkerState { taskQueue   :: (InChan a, OutChan a)
                                           , queueLength :: Int
                                           }
 
-newtype WorkerAction a = WorkerAction {runAction :: RWS WorkerConfig [MessageTypes] WorkerState a
+newtype WorkerAction a = WorkerAction {runAction :: RWS WorkerConfig [Messages] WorkerState a
                                       } deriving (Functor,
                                                   Applicative,
                                                   Monad,
                                                   MonadState WorkerState,
-                                                  MonadWriter [MessageTypes],
+                                                  MonadWriter [Messages],
                                                   MonadReader WorkerConfig)
 
 initWorker :: WorkerState -> IO (InChan a, OutChan a)
@@ -46,13 +62,19 @@ initWorker (WorkerState _ l) = newChan l
 submitWork :: a -> IO Bool
 submitWork = undefined
 
+taskSubmissionHandler :: Messages -> WorkerAction ()
+taskSubmissionHandler (WorkerTask _ _ t ) = do
+  WorkerState (ic,oc) _  <- get
+  --tryWriteChan ic t
+  return ()
+
 reportState :: WorkerAction ()
 reportState = do
   WorkerConfig m me _ <- ask
   WorkerState _ l    <- get
   if (l == 0)
-    then tell [MyCapacity me m Empty 0]
-    else tell [MyCapacity me m Processing l]
+    then tell [WorkerCapacity me m Empty 0]
+    else tell [WorkerCapacity me m Processing l]
 
 
 test :: IO ()
