@@ -1,6 +1,11 @@
 # snape
 
-This is very much a work in progress. Move along.
+![alt text](https://raw.githubusercontent.com/Abhiroop/snape/master/snape.png "Snape")
+
+*As there is little foolish wand-waving
+here, many of you will hardly believe this is magic. - Severus Snape*
+
+Parallelize your workload. Like magic.
 
 ### TODOS:
 
