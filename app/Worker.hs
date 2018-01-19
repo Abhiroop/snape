@@ -14,6 +14,7 @@ import Data.Binary (Binary)
 import GHC.Generics (Generic)
 import Data.Typeable (Typeable)
 
+import Queue
 -- Limiting the kind of tasks possible right now but will extend this in future to include all kinds of Haskell tasks
 -- TODO: Look at LINQ operators for this function
 data Task = Map
@@ -32,9 +33,9 @@ data Messages = WorkerCapacity { senderOf    :: ProcessId
                                , msg         :: QueueState
                                , workLoad    :: Int
                                }
-                | WorkerTask { senderOf :: ProcessId
+                | WorkerTask { senderOf    :: ProcessId
                              , recipientOf :: ProcessId
-                             , work :: Task}
+                             , work        :: Task}
                 deriving (Show, Generic, Typeable)
 -- add more messages in futures
 -- 1. work stealing from worket to peers
@@ -44,7 +45,7 @@ data WorkerConfig = WorkerConfig { master      :: ProcessId
                                  , peers       :: [ProcessId] -- this will be useful for work stealing later
                                  }
 
-data WorkerState = forall a . WorkerState { taskQueue   :: (InChan a, OutChan a)
+data WorkerState = forall a . WorkerState { taskQueue   :: Queue a
                                           , queueLength :: Int
                                           }
 
@@ -64,8 +65,7 @@ submitWork = undefined
 
 taskSubmissionHandler :: Messages -> WorkerAction ()
 taskSubmissionHandler (WorkerTask _ _ t ) = do
-  WorkerState (ic,oc) _  <- get
-  --tryWriteChan ic t
+  WorkerState q _  <- get
   return ()
 
 reportState :: WorkerAction ()

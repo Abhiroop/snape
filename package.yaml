@@ -39,6 +39,7 @@ executables:
     - mtl
     - snape
     - unagi-chan
+    - okasaki
 
 tests:
   snape-test:
