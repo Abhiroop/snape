@@ -1,5 +1,3 @@
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
@@ -45,9 +43,9 @@ data WorkerConfig = WorkerConfig { master      :: ProcessId
                                  , peers       :: [ProcessId] -- this will be useful for work stealing later
                                  }
 
-data WorkerState = forall a . WorkerState { taskQueue   :: Queue a
-                                          , queueLength :: Int
-                                          }
+data WorkerState = WorkerState { taskQueue   :: Queue Task
+                               , queueLength :: Int
+                               }
 
 newtype WorkerAction a = WorkerAction {runAction :: RWS WorkerConfig [Messages] WorkerState a
                                       } deriving (Functor,
@@ -65,8 +63,8 @@ submitWork = undefined
 
 taskSubmissionHandler :: Messages -> WorkerAction ()
 taskSubmissionHandler (WorkerTask _ _ t ) = do
-  WorkerState q _  <- get
-  return ()
+  WorkerState q l  <- get
+  put $ WorkerState (t >>| q) (l + 1)
 
 reportState :: WorkerAction ()
 reportState = do
