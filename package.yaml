@@ -35,7 +35,6 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - binary
-    - containers
     - distributed-process
     - mtl
     - snape
