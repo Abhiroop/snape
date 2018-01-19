@@ -36,7 +36,7 @@ data Messages = WorkerCapacity { senderOf    :: ProcessId
                              , work        :: Task}
                 deriving (Show, Generic, Typeable)
 -- add more messages in futures
--- 1. work stealing from worket to peers
+-- 1. work stealing from worker to peers
 
 data WorkerConfig = WorkerConfig { master      :: ProcessId
                                  , myId        :: ProcessId
