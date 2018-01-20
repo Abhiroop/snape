@@ -16,3 +16,7 @@ here, many of you will hardly believe this is magic. - Severus Snape*
 - [ ] Make IO part of the monad transformer stack and see how to imporove performance of Writer monad etc.
 - [ ] Must add **WORK STEALING** from peers
 
+### INSPIRATION
+
+- Naiad - Timely Data Flow https://www.microsoft.com/en-us/research/publication/naiad-a-timely-dataflow-system-2/
+- http://dask.pydata.org/en/latest/

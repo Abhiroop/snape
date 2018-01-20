@@ -74,6 +74,9 @@ reportState = do
     then tell [WorkerCapacity me m Empty 0]
     else tell [WorkerCapacity me m Processing l]
 
+-- This function actually applies the function to the data
+foo :: Task -> FilePath -> IO ()
+foo = undefined
 
 test :: IO ()
 test = do
