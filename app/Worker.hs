@@ -5,13 +5,8 @@
 module Worker where
 
 import Control.Distributed.Process (ProcessId, Process)
-import Control.Distributed.Process.Serializable
 import Control.Concurrent.Chan.Unagi.Bounded
 import Control.Monad.RWS.Strict
-
-import Data.Binary (Binary)
-import Data.Typeable (Typeable)
-import GHC.Generics (Generic)
 
 import Queue -- imported from the library Okasaki
 

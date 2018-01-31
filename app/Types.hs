@@ -18,6 +18,8 @@ data WorkerQueueState = Empty
                       | Processing
                       deriving (Show, Generic, Typeable)
 
+instance Binary WorkerQueueState
+
 data WorkerConfig = WorkerConfig { master      :: ProcessId
                                  , myId        :: ProcessId
                                  , peers       :: [ProcessId] -- this will be useful for work stealing later

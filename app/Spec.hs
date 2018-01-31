@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 module Spec where
 
+import Data.Binary (Binary)
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import GHC.StaticPtr
@@ -14,6 +15,9 @@ data Task a b = Map    (StaticPtr (a -> b))
               | Reduce (StaticPtr (a -> b -> b) -> b)
               | GroupBy a
               deriving (Generic, Typeable)
+
+-- TODO: Need to serialize the task for sending the function
+--instance (Binary a, Binary b) => Binary (Task a b)
 
 {- t a is a polymorphic container of a
 
