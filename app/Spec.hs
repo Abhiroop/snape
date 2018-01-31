@@ -7,9 +7,6 @@ import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import GHC.StaticPtr
 
--- Limiting the kind of tasks possible right now but will extend this in future to include all kinds of Haskell tasks
--- TODO: Look at LINQ operators for this function
--- (a -> b) is the serialized function to be applied here Eg: (+ 1)
 data Task a b = Map     (StaticPtr (a -> b))
               | Filter  (StaticPtr (a -> Bool))
               | Reduce  (StaticPtr ((a -> b -> b) -> b))
