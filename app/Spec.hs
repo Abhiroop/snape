@@ -1,5 +1,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE TypeFamilies #-}
 module Spec where
 
 import Data.Binary (Binary)
@@ -31,14 +32,6 @@ https://hackage.haskell.org/package/accelerate-1.1.1.0/docs/Data-Array-Accelerat
 6. t can be a plain Haskell container like a List
 -}
 
-data Result t b = Singleton b
-                | Container (t b)
-                | Grouped (t (t b))
-
--- Here everything can be polymorphic.
--- t can be any container
--- a and b are of course polymorphic
-
 class Applicable t a b where
-  apply :: Task a b -> t a -> Result t b
-
+  type ResultTy t a b
+  apply :: Task a b -> t a -> ResultTy t a b
