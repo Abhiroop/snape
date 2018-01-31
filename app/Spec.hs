@@ -10,10 +10,10 @@ import GHC.StaticPtr
 -- Limiting the kind of tasks possible right now but will extend this in future to include all kinds of Haskell tasks
 -- TODO: Look at LINQ operators for this function
 -- (a -> b) is the serialized function to be applied here Eg: (+ 1)
-data Task a b = Map    (StaticPtr (a -> b))
-              | Filter (StaticPtr (a -> Bool))
-              | Reduce (StaticPtr (a -> b -> b) -> b)
-              | GroupBy a
+data Task a b = Map     (StaticPtr (a -> b))
+              | Filter  (StaticPtr (a -> Bool))
+              | Reduce  (StaticPtr ((a -> b -> b) -> b))
+              | GroupBy (StaticPtr (a -> a -> Bool))
               deriving (Generic, Typeable)
 
 -- TODO: Need to serialize the task for sending the function
@@ -36,6 +36,7 @@ https://hackage.haskell.org/package/accelerate-1.1.1.0/docs/Data-Array-Accelerat
 
 data Result t b = Singleton b
                 | Container (t b)
+                | Grouped (t (t b))
 
 -- Here everything can be polymorphic.
 -- t can be any container
