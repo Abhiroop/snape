@@ -1,7 +1,7 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE StaticPointers #-}
 module Worker where
 
 import Control.Distributed.Process (ProcessId, Process)
@@ -12,46 +12,12 @@ import Control.Monad.RWS.Strict
 import Data.Binary (Binary)
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
-import GHC.StaticPtr
 
-import Queue
--- Limiting the kind of tasks possible right now but will extend this in future to include all kinds of Haskell tasks
--- TODO: Look at LINQ operators for this function
--- a is the serialized function to be applied here Eg: (+ 1)
-data Task a b = Map    (StaticPtr (a -> b))
-              | Filter (StaticPtr (a -> Bool))
-              | Reduce (StaticPtr (a -> b -> b) -> b)
-              | GroupBy a
-              deriving (Generic, Typeable)
+import Queue -- imported from the library Okasaki
 
-data QueueState = Empty
-                | Processing
-                deriving (Show, Generic, Typeable)
-
--- TODO: This should be moved to a separate file Messages.hs
--- a is the serialized function to be applied
-data Messages a b = WorkerCapacity { senderOf    :: ProcessId
-                                 , recipientOf :: ProcessId
-                                 , msg         :: QueueState
-                                 , workLoad    :: Int
-                                 }
-                -- the worker pushes this every n secs to the scheduler.
-                | WorkerTask { senderOf    :: ProcessId
-                             , recipientOf :: ProcessId
-                             , work        :: Task a b}
-                -- the master sends this to the worker every time a worker returns that it is empty
-                deriving (Generic, Typeable)
--- add more messages in futures
--- 1. work stealing from worker to peers
-
-data WorkerConfig = WorkerConfig { master      :: ProcessId
-                                 , myId        :: ProcessId
-                                 , peers       :: [ProcessId] -- this will be useful for work stealing later
-                                 }
-
-data WorkerState a b = WorkerState { taskQueue   :: Queue (Task a b)
-                                 , queueLength :: Int
-                                 }
+import Messages
+import Spec
+import Types
 
 
 
@@ -84,12 +50,12 @@ reportState = do
     else tell [WorkerCapacity me m Processing l]
 
 -- This function actually applies the function to the data
-apply :: (Num a) => Task a b -> FilePath -> IO ()
-apply (Map f) filepath = do
-  let func = deRefStaticPtr f
-  let k = func 10
-  return ()
-
+-- The function will be applied on REPA arrays
+-- apply :: (Num a) => Task a b -> FilePath -> IO ()
+-- apply (Map f) filepath = do
+--   let func = deRefStaticPtr f
+--   let k = func 10
+--   return ()
 
 test :: IO ()
 test = do
