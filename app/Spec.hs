@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -14,8 +15,7 @@ data Task a b = Map     (StaticPtr (a -> b))
               | GroupBy (StaticPtr (a -> a -> Bool))
               deriving (Generic, Typeable)
 
--- TODO: Need to serialize the task for sending the function
---instance (Binary a, Binary b) => Binary (Task a b)
+-- instance Binary (Task a b)
 
 {- t a is a polymorphic container of a
 
@@ -35,3 +35,8 @@ https://hackage.haskell.org/package/accelerate-1.1.1.0/docs/Data-Array-Accelerat
 class Applicable t a b where
   type ResultTy t a b
   apply :: Task a b -> t a -> ResultTy t a b
+
+instance Applicable [] a b where
+  type ResultTy [] a b = [b]
+  apply (Map f)    = map $ deRefStaticPtr f
+  --apply (Filter f) = filter $ deRefStaticPtr f
