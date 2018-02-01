@@ -7,7 +7,7 @@ module Test where
 import Data.Binary (Binary)
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
-
+import Debug.Trace
 import GHC.StaticPtr
 
 fact :: Int -> Int
@@ -23,14 +23,41 @@ data Bar = C StaticKey deriving Generic
 
 instance Binary Bar
 
-data Foo f = Map f deriving (Generic, Typeable)
+data Foo a b seed = Map (a -> b)
+                  | Reduce (a -> b -> b) seed
 
 foo :: Int -> Int
 foo = (+1)
 
-send :: IO ()
+bar :: Int -> Int -> Int
+bar = (+)
+
+send :: IO (Either [Int] Int)
 send = do
-  let a = static (Map foo) :: StaticPtr (Foo (Int -> Int))
+  let list = [1,2,3]
+      a = static (Map foo)      :: StaticPtr (Foo Int Int Int)
+      --b = static (Reduce bar 0) :: StaticPtr (Foo Int Int Int)
       t = staticKey a
+      --t = staticKey b
+  -- x <- unsafeLookupStaticPtr t
+  -- case x of
+  --   Just sptr -> case deRefStaticPtr sptr of
+  --                  Map f -> return $ Containerized $ map f list
+  --                  --_     -> error "Task undefined"
+  --   Nothing -> error "Wrong function serialized"
   x <- unsafeLookupStaticPtr t
-  return ()
+  case x of
+    Just sptr -> case deRefStaticPtr sptr of
+                   Reduce f z -> return $ Right $ foldr f z list
+                   Map f      -> return $ Left $ map f list
+    Nothing -> error "Wrong function serialized"
+
+
+data Test a b s = A (a -> b) | B (a -> b -> b) s
+
+baz :: IO (Either [Int] Int)
+baz = do
+  let b = B bar 0
+  case b of
+    A f   -> return $ Left $ map f [1,2,3]
+    B f s -> return $ Right $ foldr f s [1,2,3]
