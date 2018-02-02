@@ -1,21 +1,20 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE TypeFamilies #-}
 module Spec where
 
+import Data.List as L
 import Data.Binary (Binary)
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import GHC.StaticPtr
 
-data Task a b = Map     (StaticPtr (a -> b))
-              | Filter  (StaticPtr (a -> Bool))
-              | Reduce  (StaticPtr ((a -> b -> b) -> b))
-              | GroupBy (StaticPtr (a -> a -> Bool))
-              deriving (Generic, Typeable)
+data Task a b = Map     (a -> b)
+              | Filter  (a -> Bool)
+              | Reduce  (a -> b -> b) b
+              | GroupBy (a -> a -> Bool)
 
--- instance Binary (Task a b)
+data Result t a b = Mapped (t b)
+                  | Filtered (t a)
+                  | Reduced b
+                  | Grouped (t (t a))
 
 {- t a is a polymorphic container of a
 
@@ -32,11 +31,11 @@ https://hackage.haskell.org/package/accelerate-1.1.1.0/docs/Data-Array-Accelerat
 6. t can be a plain Haskell container like a List
 -}
 
-class Applicable t a b where
-  type ResultTy t a b
-  apply :: Task a b -> t a -> ResultTy t a b
+class Applicable t where
+  apply :: Task a b -> t a -> Result t a b
 
-instance Applicable [] a b where
-  type ResultTy [] a b = [b]
-  apply (Map f)    = map $ deRefStaticPtr f
-  --apply (Filter f) = filter $ deRefStaticPtr f
+instance Applicable [] where
+  apply (Map f) [x]      = Mapped $ map f [x]
+  apply (Filter f) [x]   = Filtered $ filter f [x]
+  apply (Reduce f i) [x] = Reduced $ foldr f i [x]
+  apply (GroupBy f)  [x] = Grouped $ L.groupBy f [x]
