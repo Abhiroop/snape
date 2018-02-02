@@ -6,6 +6,8 @@ import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import GHC.StaticPtr
 
+import Debug.Trace
+
 data Task a b = Map     (a -> b)
               | Filter  (a -> Bool)
               | Reduce  (a -> b -> b) b
@@ -35,7 +37,7 @@ class Applicable t where
   apply :: Task a b -> t a -> Result t a b
 
 instance Applicable [] where
-  apply (Map f) [x]      = Mapped $ map f [x]
-  apply (Filter f) [x]   = Filtered $ filter f [x]
-  apply (Reduce f i) [x] = Reduced $ foldr f i [x]
-  apply (GroupBy f)  [x] = Grouped $ L.groupBy f [x]
+  apply (Map f)      x = Mapped   $ map f x
+  apply (Filter f)   x = Filtered $ filter f x
+  apply (Reduce f i) x = Reduced  $ foldr f i x
+  apply (GroupBy f)  x = Grouped  $ L.groupBy f x
