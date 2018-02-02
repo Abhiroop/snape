@@ -1,12 +1,6 @@
 module Spec where
 
 import Data.List as L
-import Data.Binary (Binary)
-import Data.Typeable (Typeable)
-import GHC.Generics (Generic)
-import GHC.StaticPtr
-
-import Debug.Trace
 
 data Task a b = Map     (a -> b)
               | Filter  (a -> Bool)
