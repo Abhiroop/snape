@@ -8,6 +8,11 @@ import Control.Distributed.Process (ProcessId, Process)
 import Control.Concurrent.Chan.Unagi.Bounded
 import Control.Monad.RWS.Strict
 
+import Control.Monad.Reader
+import Control.Monad.Writer.Strict
+import Control.Monad.State.Strict
+
+
 import Queue -- imported from the library Okasaki
 
 import Messages
@@ -15,15 +20,14 @@ import Spec
 import Types
 
 
-
-newtype WorkerAction t m a = WorkerAction {runAction :: RWS WorkerConfig [Messages t m] (WorkerState t m) a
-                                        } deriving (Functor,
-                                                    Applicative,
-                                                    Monad,
-                                                    MonadState (WorkerState t m),
-                                                    MonadWriter [Messages t m],
-                                                    MonadReader WorkerConfig)
-
+newtype WorkerAction t m a = WorkerAction {
+                                 runApp :: ReaderT WorkerConfig (WriterT [Messages] (StateT (WorkerState t m) IO)) a
+                                 } deriving  (Functor,
+                                              Applicative,
+                                              Monad,
+                                              MonadState (WorkerState t m),
+                                              MonadWriter [Messages],
+                                              MonadReader WorkerConfig)
 
 initWorker :: WorkerState a b -> IO (InChan a, OutChan a)
 initWorker (WorkerState _ l) = newChan l
@@ -31,10 +35,10 @@ initWorker (WorkerState _ l) = newChan l
 submitWork :: a -> IO Bool
 submitWork = undefined
 
-taskSubmissionHandler :: Messages t m -> WorkerAction t m ()
-taskSubmissionHandler (WorkerTask _ _ t ) = do
-  WorkerState q l  <- get
-  put $ WorkerState (t >>| q) (l + 1)
+taskSubmissionHandler :: Messages -> WorkerAction t m ()
+taskSubmissionHandler (WorkerTask _ _ t ) = undefined-- do
+  -- WorkerState q l  <- get
+  -- put $ WorkerState (t >>| q) (l + 1)
 
 reportState :: WorkerAction t m ()
 reportState = do

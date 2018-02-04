@@ -26,5 +26,5 @@ data WorkerConfig = WorkerConfig { master      :: ProcessId
                                  }
 
 data WorkerState a b = WorkerState { taskQueue   :: Queue (Task a b)
-                                 , queueLength :: Int
-                                 }
+                                   , queueLength :: Int
+                                   }
