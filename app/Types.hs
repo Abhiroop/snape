@@ -23,7 +23,6 @@ data WorkerConfig = WorkerConfig { master      :: ProcessId
                                  }
 
 data WorkerState a b = WorkerState { taskQueue   :: IO (InChan (Task a b), OutChan (Task a b))
-                                   , queueLength :: Int
                                    }
 
 writeToQ :: Task a b -> IO (InChan (Task a b), OutChan (Task a b)) -> IO ()

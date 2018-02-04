@@ -4,6 +4,7 @@
 module Test where
 
 -- This is a test file to experiment with static pointers. Will be checked out later. Need to track this for certain tricky cases.
+import Control.Concurrent.Chan.Unagi.Bounded
 import Data.Binary (Binary)
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
@@ -61,3 +62,18 @@ baz = do
   case b of
     A f   -> return $ Left $ map f [1,2,3]
     B f s -> return $ Right $ foldr f s [1,2,3]
+
+-----------------------------------
+-- UnagiChan
+
+test :: IO ()
+test = do
+  (inC, outC) <- newChan 5
+  writeChan inC 6
+  writeChan inC 7
+  writeChan inC 8
+  x <- readChan outC
+  print x
+  n <- estimatedLength inC
+  print n
+  return ()

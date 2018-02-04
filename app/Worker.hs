@@ -1,12 +1,8 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE DeriveGeneric #-}
 module Worker where
 
 import Control.Distributed.Process (ProcessId, Process)
 import Control.Concurrent.Chan.Unagi.Bounded
-import Control.Monad.RWS.Strict
 
 import Control.Monad.Reader
 import Control.Monad.Writer.Strict
@@ -29,42 +25,23 @@ newtype WorkerAction t m a = WorkerAction {
                                               MonadWriter [Messages],
                                               MonadReader WorkerConfig)
 
-initWorker :: WorkerState a b -> IO (InChan a, OutChan a)
-initWorker (WorkerState _ l) = newChan l
+initWorker :: Int -> WorkerState a b -> IO (InChan a, OutChan a)
+initWorker l (WorkerState _) = newChan l
 
 taskSubmissionHandler :: Messages -> WorkerAction t m ()
 taskSubmissionHandler (WorkerTask _ _ t ) = do
-  WorkerState q l  <- get
+  WorkerState q <- get
   task <- liftIO $ unsafeLookupStaticPtr t
   case task of
     Just t -> liftIO $ writeToQ (deRefStaticPtr t) q
-    Nothing -> put $ WorkerState q l
+    Nothing -> put $ WorkerState q
 
 reportState :: WorkerAction t m ()
 reportState = do
   WorkerConfig m me _ <- ask
-  WorkerState _ l    <- get
+  WorkerState q       <- get
+  (inC,_) <- liftIO $ q
+  l <- liftIO $ estimatedLength inC
   if (l == 0)
     then tell [WorkerCapacity me m Empty 0]
     else tell [WorkerCapacity me m Processing l]
-
--- This function actually applies the function to the data
--- The function will be applied on REPA arrays
--- apply :: (Num a) => Task a b -> FilePath -> IO ()
--- apply (Map f) filepath = do
---   let func = deRefStaticPtr f
---   let k = func 10
---   return ()
-
-test :: IO ()
-test = do
-  (inC, outC) <- newChan 5
-  writeChan inC 6
-  writeChan inC 7
-  writeChan inC 8
-  x <- readChan outC
-  print x
-  n <- estimatedLength inC
-  print n
-  return ()
-
