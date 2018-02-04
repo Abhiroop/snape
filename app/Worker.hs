@@ -12,6 +12,7 @@ import Control.Monad.Reader
 import Control.Monad.Writer.Strict
 import Control.Monad.State.Strict
 
+import GHC.StaticPtr
 
 import Queue -- imported from the library Okasaki
 
@@ -25,6 +26,7 @@ newtype WorkerAction t m a = WorkerAction {
                                  } deriving  (Functor,
                                               Applicative,
                                               Monad,
+                                              MonadIO,
                                               MonadState (WorkerState t m),
                                               MonadWriter [Messages],
                                               MonadReader WorkerConfig)
@@ -35,10 +37,16 @@ initWorker (WorkerState _ l) = newChan l
 submitWork :: a -> IO Bool
 submitWork = undefined
 
+writeToQ :: Task a b -> IO (InChan (Task a b), OutChan (Task a b)) -> IO ()
+writeToQ = undefined
+
 taskSubmissionHandler :: Messages -> WorkerAction t m ()
-taskSubmissionHandler (WorkerTask _ _ t ) = undefined-- do
-  -- WorkerState q l  <- get
-  -- put $ WorkerState (t >>| q) (l + 1)
+taskSubmissionHandler (WorkerTask _ _ t ) = do
+  WorkerState q l  <- get
+  task <- liftIO $ unsafeLookupStaticPtr t
+  case task of
+    Just t -> put $ WorkerState ((deRefStaticPtr t) >>| q) (l + 1)
+    Nothing -> put $ WorkerState q l
 
 reportState :: WorkerAction t m ()
 reportState = do
