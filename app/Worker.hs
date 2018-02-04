@@ -14,8 +14,6 @@ import Control.Monad.State.Strict
 
 import GHC.StaticPtr
 
-import Queue -- imported from the library Okasaki
-
 import Messages
 import Spec
 import Types
@@ -34,18 +32,12 @@ newtype WorkerAction t m a = WorkerAction {
 initWorker :: WorkerState a b -> IO (InChan a, OutChan a)
 initWorker (WorkerState _ l) = newChan l
 
-submitWork :: a -> IO Bool
-submitWork = undefined
-
-writeToQ :: Task a b -> IO (InChan (Task a b), OutChan (Task a b)) -> IO ()
-writeToQ = undefined
-
 taskSubmissionHandler :: Messages -> WorkerAction t m ()
 taskSubmissionHandler (WorkerTask _ _ t ) = do
   WorkerState q l  <- get
   task <- liftIO $ unsafeLookupStaticPtr t
   case task of
-    Just t -> put $ WorkerState ((deRefStaticPtr t) >>| q) (l + 1)
+    Just t -> liftIO $ writeToQ (deRefStaticPtr t) q
     Nothing -> put $ WorkerState q l
 
 reportState :: WorkerAction t m ()
