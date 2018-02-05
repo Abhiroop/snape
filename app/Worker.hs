@@ -28,6 +28,7 @@ newtype WorkerAction t m a = WorkerAction {
 runWorker :: WorkerConfig -> WorkerState a b -> WorkerAction a b c -> IO ([Messages],WorkerState a b)
 runWorker config state m = runStateT (execWriterT $ runReaderT (runApp m) config) state
 
+-- TODO: Spawn a new process which would call `reportState`
 runServer :: WorkerConfig -> WorkerState a b -> Process ()
 runServer wc ws = do
   let run handler msg = return $ unsafePerformIO $ runWorker wc ws (handler msg)
