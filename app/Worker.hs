@@ -31,7 +31,7 @@ runWorker config state m = runStateT (execWriterT $ runReaderT (runApp m) config
 -- TODO: Spawn a new process which would call `reportState`
 runServer :: WorkerConfig -> WorkerState a b -> Process ()
 runServer wc ws = do
-  let run handler msg = return $ unsafePerformIO $ runWorker wc ws (handler msg)
+  let run handler msg = liftIO $ runWorker wc ws (handler msg)
   (messages,state') <- receiveWait [
     match $ run taskSubmissionHandler
                                    ]
