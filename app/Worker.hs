@@ -25,6 +25,15 @@ newtype WorkerAction t m a = WorkerAction {
                                               MonadWriter [Messages],
                                               MonadReader WorkerConfig)
 
+runWorker :: WorkerConfig -> WorkerState a b -> WorkerAction a b c -> IO ([Messages],WorkerState a b)
+runWorker config state m = runStateT (execWriterT $ runReaderT (runApp m) config) state
+
+runServer :: WorkerConfig -> WorkerState a b -> Process ()
+runServer wc ws = do
+  let run handler msg = undefined
+  return ()
+
+  
 initWorker :: Int -> WorkerState a b -> IO (InChan a, OutChan a)
 initWorker l (WorkerState _) = newChan l
 
