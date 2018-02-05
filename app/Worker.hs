@@ -1,7 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Worker where
 
-import Control.Distributed.Process (ProcessId, Process)
+import Control.Distributed.Process (ProcessId, Process, send, match, receiveWait)
 import Control.Concurrent.Chan.Unagi.Bounded
 
 import Control.Monad.Reader
@@ -9,7 +9,7 @@ import Control.Monad.Writer.Strict
 import Control.Monad.State.Strict
 
 import GHC.StaticPtr
-
+import System.IO.Unsafe
 import Messages
 import Spec
 import Types
@@ -30,10 +30,13 @@ runWorker config state m = runStateT (execWriterT $ runReaderT (runApp m) config
 
 runServer :: WorkerConfig -> WorkerState a b -> Process ()
 runServer wc ws = do
-  let run handler msg = undefined
-  return ()
+  let run handler msg = return $ unsafePerformIO $ runWorker wc ws (handler msg)
+  (messages,state') <- receiveWait [
+    match $ run taskSubmissionHandler
+                                   ]
+  mapM_ (\msg -> send (recipientOf msg) msg) messages
+  runServer wc state'
 
-  
 initWorker :: Int -> WorkerState a b -> IO (InChan a, OutChan a)
 initWorker l (WorkerState _) = newChan l
 
@@ -42,8 +45,8 @@ taskSubmissionHandler (WorkerTask _ _ t ) = do
   WorkerState q <- get
   task <- liftIO $ unsafeLookupStaticPtr t
   case task of
-    Just t -> liftIO $ writeToQ (deRefStaticPtr t) q
-    Nothing -> put $ WorkerState q
+    Just t  -> liftIO $ writeToQ (deRefStaticPtr t) q
+    Nothing -> return ()
 
 reportState :: WorkerAction t m ()
 reportState = do
