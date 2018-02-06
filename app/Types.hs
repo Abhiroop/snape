@@ -17,7 +17,7 @@ data WorkerQueueState = Empty
 
 instance Binary WorkerQueueState
 
-data WorkerConfig = WorkerConfig { master      :: ProcessId
+data WorkerConfig = WorkerConfig { master      :: ProcessId  -- TODO: [ProcessId] when multiple masters are introduced
                                  , myId        :: ProcessId
                                  , peers       :: [ProcessId] -- this will be useful for work stealing later
                                  }
