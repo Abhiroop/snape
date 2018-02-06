@@ -12,7 +12,6 @@ here, many of you will hardly believe this is magic. - Severus Snape*
 
 - [x] Use Unagi Chan Queue and replace the naive queue
 - [ ] Explore all LINQ/SQL operators and use them as a Task
-- [ ] Move all global messages tasks etc to a more global namespace
 - [x] Make IO part of the monad transformer stack
 - [ ] Performance analysis of Writer monad.
 - [ ] Must add **WORK STEALING** from peers
