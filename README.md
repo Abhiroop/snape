@@ -18,6 +18,7 @@ here, many of you will hardly believe this is magic. - Severus Snape*
 - [ ] Allow dynamic growth of task graph post compilation
 - [ ] Design a graph IR to which the frontend compiles down to
 - [ ] Investigate SIMD vectorization options in GHC to enhance Repa
+- [ ] Add documentation and examples
 
 ### INSPIRATION
 
