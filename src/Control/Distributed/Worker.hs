@@ -59,5 +59,5 @@ statusReportHandler (StatusReport sender _)= do
   case sender == master of
     False -> return ()
     True -> if (l == 0)
-            then tell [WorkerCapacity me sender Empty 0]
-            else tell [WorkerCapacity me sender Processing l]
+            then tell [WorkerCapacity me master Empty 0]
+            else tell [WorkerCapacity me master Processing l]
