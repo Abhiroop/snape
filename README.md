@@ -16,7 +16,7 @@ here, many of you will hardly believe this is magic. - Severus Snape*
 - [ ] Performance analysis of Writer monad.
 - [ ] Must add **WORK STEALING** from peers
 - [ ] Allow dynamic growth of task graph post compilation
-- [ ] Design a graph IR to which the frontend compiles down to
+- [ ] Design a graph IR (more precisely a DAG)to which the frontend compiles down to
 - [ ] Investigate SIMD vectorization options in GHC to enhance Repa
 - [ ] Add documentation and examples
 

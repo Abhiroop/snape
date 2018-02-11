@@ -1,5 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
-module Messages where
+module Control.Distributed.Messages where
 
 import Control.Distributed.Process (ProcessId)
 
@@ -9,7 +9,7 @@ import GHC.Generics (Generic)
 
 import GHC.StaticPtr
 
-import Types
+import Control.Distributed.Types
 
 -- This module defines all the message types possible for the master as well as the worker as well as any other classification of the node defined in the future.
 

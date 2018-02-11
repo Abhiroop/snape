@@ -1,4 +1,4 @@
-module Server where
+module Control.Distributed.Server where
 
 import Control.Distributed.Process
 import Control.Concurrent.Chan.Unagi.Bounded

@@ -1,5 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
-module Types where
+module Control.Distributed.Types where
 
 import Control.Distributed.Process (ProcessId)
 import Control.Concurrent.Chan.Unagi.Bounded
@@ -7,7 +7,7 @@ import Data.Binary (Binary)
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 
-import Spec
+import Control.Distributed.Spec
 
 -- Worker's types
 

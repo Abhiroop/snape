@@ -1,5 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-module Worker where
+module Control.Distributed.Worker where
 
 import Control.Distributed.Process (ProcessId, Process, send, match, receiveWait)
 import Control.Concurrent.Chan.Unagi.Bounded
@@ -10,9 +10,10 @@ import Control.Monad.State.Strict
 
 import GHC.StaticPtr
 import System.IO.Unsafe
-import Messages
-import Spec
-import Types
+
+import Control.Distributed.Messages
+import Control.Distributed.Spec
+import Control.Distributed.Types
 
 
 newtype WorkerAction t m a = WorkerAction {

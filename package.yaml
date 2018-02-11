@@ -24,11 +24,17 @@ dependencies:
 
 library:
   source-dirs: src
+  dependencies:
+    - binary
+    - distributed-process
+    - mtl
+    - unagi-chan
+
 
 executables:
   snape-exe:
     main:                Main.hs
-    source-dirs:         app
+    source-dirs:         src
     ghc-options:
     - -threaded
     - -rtsopts
