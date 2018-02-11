@@ -12,9 +12,8 @@ import GHC.StaticPtr
 import System.IO.Unsafe
 
 import Control.Distributed.Messages
-import Control.Distributed.Spec
 import Control.Distributed.Types
-
+import Data.Spec
 
 newtype WorkerAction t m a = WorkerAction {
                                  runApp :: ReaderT WorkerConfig (WriterT [Messages] (StateT (WorkerState t m) IO)) a

@@ -1,4 +1,4 @@
-module Control.Distributed.Spec where
+module Data.Spec where
 
 import Data.List as L
 
