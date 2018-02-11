@@ -18,11 +18,13 @@ data Messages = WorkerCapacity { senderOf    :: ProcessId
                                , msg         :: WorkerQueueState
                                , workLoad    :: Int
                                }
-                -- the worker pushes this every n secs to the scheduler.
+
                 | WorkerTask { senderOf    :: ProcessId
                              , recipientOf :: ProcessId
                              , work        :: StaticKey}
-                -- the master sends this to the worker every time a worker returns that it is empty
+
+                | StatusReport { senderOf    :: ProcessId
+                               , recipientOf :: ProcessId}
                 deriving (Generic, Typeable)
 -- add more messages in futures
 -- 1. work stealing from worker to peers

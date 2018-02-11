@@ -33,7 +33,8 @@ runServer :: WorkerConfig -> WorkerState a b -> Process ()
 runServer wc ws = do
   let run handler msg = liftIO $ runWorker wc ws (handler msg)
   (messages,state') <- receiveWait [
-    match $ run taskSubmissionHandler
+    match $ run taskSubmissionHandler ,
+    match $ run statusReportHandler
                                    ]
   mapM_ (\msg -> send (recipientOf msg) msg) messages
   runServer wc state'
@@ -49,12 +50,14 @@ taskSubmissionHandler (WorkerTask _ _ t ) = do
     Just t  -> liftIO $ writeToQ (deRefStaticPtr t) q
     Nothing -> return ()
 
-reportState :: WorkerAction t m ()
-reportState = do
-  WorkerConfig m me _ <- ask
+statusReportHandler :: Messages -> WorkerAction t m ()
+statusReportHandler (StatusReport sender _)= do
+  WorkerConfig master me _ <- ask
   WorkerState q       <- get
   (inC,_) <- liftIO $ q
   l <- liftIO $ estimatedLength inC
-  if (l == 0)
-    then tell [WorkerCapacity me m Empty 0]
-    else tell [WorkerCapacity me m Processing l]
+  case sender == master of
+    False -> return ()
+    True -> if (l == 0)
+            then tell [WorkerCapacity me sender Empty 0]
+            else tell [WorkerCapacity me sender Processing l]

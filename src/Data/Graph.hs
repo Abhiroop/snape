@@ -22,8 +22,8 @@ z = reduce (+) 0 y
         x = [1,2,3]
 
 { x : [1,2,3]
-  y : (Map inc, x)
-  z : (Reduce add 0, y)
+  y : (Map (+ 1), x)
+  z : (Reduce (+) 0, y)
 }
 
 Function := Standard Haskell functions
