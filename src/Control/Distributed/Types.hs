@@ -22,8 +22,8 @@ data WorkerConfig = WorkerConfig { master      :: ProcessId  -- TODO: [ProcessId
                                  , peers       :: [ProcessId] -- this will be useful for work stealing later
                                  }
 
-data WorkerState a b = WorkerState { taskQueue   :: IO (InChan (Task a b), OutChan (Task a b))
-                                   }
+newtype WorkerState a b = WorkerState { taskQueue   :: IO (InChan (Task a b), OutChan (Task a b))
+                                      }
 
 writeToQ :: Task a b -> IO (InChan (Task a b), OutChan (Task a b)) -> IO ()
 writeToQ t q = do

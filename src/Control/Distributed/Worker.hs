@@ -54,7 +54,7 @@ statusReportHandler :: Messages -> WorkerAction t m ()
 statusReportHandler (StatusReport sender _)= do
   WorkerConfig master me _ <- ask
   WorkerState q       <- get
-  (inC,_) <- liftIO $ q
+  (inC,_) <- liftIO q
   l <- liftIO $ estimatedLength inC
   case sender == master of
     False -> return ()
