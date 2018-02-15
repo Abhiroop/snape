@@ -30,6 +30,10 @@ https://hackage.haskell.org/package/accelerate-1.1.1.0/docs/Data-Array-Accelerat
 class Applicable t where
   apply :: Task a b -> t a -> Result t a b
 
+-- The design is to eventually add multiple typeclasses like Mappable, Reducible etc and expose these as the API.
+-- The instances can be written in a separate project choosing whichever typeclass applies to that project.
+-- This would make this project a plain scheduler which schedules functions like Map, reduce etc No implementation will be here
+-- This is just a sample instance for experimentation
 instance Applicable [] where
   apply (Map f)      x = Mapped   $ map f x
   apply (Filter f)   x = Filtered $ filter f x
